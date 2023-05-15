@@ -24,7 +24,7 @@ NS_LOG_COMPONENT_DEFINE ("UdpClientsServerIOT-v2");
 
 int 
 main (int argc, char *argv[]){
-    uint16_t numClients = 20;
+    uint16_t numClients = 3;
 
     // --- LOGGING --- //
     LogComponentEnable ("UdpClientsServerIOT-v2", LOG_LEVEL_ALL);
@@ -60,25 +60,33 @@ main (int argc, char *argv[]){
     // Cada client tem numNodes-1 aplicacoes ping, cada uma com um endereco de destino (so nao tem a do proprio endereco)
     // Cada aplicacao eh uma posicao do vetor pingApps
     NS_LOG_INFO("Set applications.");
-    std::vector<ApplicationContainer> pingApps(numClients);
+    std::vector<ApplicationContainer> pingApps(numClients), pingOnServer(numClients);
     for(uint16_t i = 0; i < numClients; ++i){
         for(uint16_t j = 0; j < (numClients + 1); ++j){
             if(j != i){
                 V4PingHelper pingHelperAux(interface.GetAddress(j)); //pinga inclusive no servidor
                 pingHelperAux.SetAttribute ("Verbose", BooleanValue (false));
-                pingHelperAux.SetAttribute ("Interval", TimeValue (Seconds(numClients)));
+                pingHelperAux.SetAttribute ("Interval", TimeValue (Seconds(numClients + 1.0)));
                 pingHelperAux.SetAttribute ("Size", UintegerValue (16));
-                pingApps[i].Add(pingHelperAux.Install(allNodes.Get(i))); // Instala ping(dest: j) no cliente i
+                if(j != numClients)
+                    pingApps[i].Add(pingHelperAux.Install(allNodes.Get(i))); // Instala ping(dest: j) no cliente i
+                else
+                    pingOnServer[i].Add(pingHelperAux.Install(allNodes.Get(i))); // Instala ping(dest: server) no client i
             }
         }
     }
 
     // Os nodes comecam a pingar com 1 segundo de diferenca
-    // pingApps[i] == aplicacao do cliente [i]
+    // pingApps[i] == aplicacoes de ping nos clientes, do cliente [i]
+    // pingOnServer[i] == aplicacao de ping no servidor, do cliente [i]
     for(uint16_t i = 0; i < numClients; ++i){
-        uint16_t appStart = 1.0 + 1.0*i;
-        pingApps[i].Start(Seconds(appStart));
-        pingApps[i].Stop(Seconds(appStart + (numClients) * 2 + 1.0)); //Termina apos enviar 3 pacotes
+        uint16_t pingOnServerStart = 2*i; //primeiro pinga no servidor
+        uint16_t pingAppsStart = pingOnServerStart + 1.0; //depois pinga nos clientes
+        
+        pingOnServer[i].Start(Seconds(pingOnServerStart));
+        pingOnServer[i].Stop(Seconds(pingOnServerStart + (numClients + 1.0)*2 + 1.0));
+        pingApps[i].Start(Seconds(pingAppsStart));
+        pingApps[i].Stop(Seconds(pingAppsStart + (numClients + 1.0) * 2 + 1.0)); //Termina apos enviar 3 pacotes
     }
     
     // TRACING
