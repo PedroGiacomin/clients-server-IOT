@@ -24,7 +24,7 @@ NS_LOG_COMPONENT_DEFINE ("UdpClientsServerIOT");
 
 int 
 main (int argc, char *argv[]){
-    uint16_t numClients = 2;
+    uint16_t numClients = 20;
 
     // --- LOGGING --- //
     LogComponentEnable ("UdpClientsServerIOT", LOG_LEVEL_ALL);
@@ -94,13 +94,13 @@ main (int argc, char *argv[]){
     mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
     mobility.Install(allNodes);
 
-    uint32_t centerX = 30, centerY = 30, x = 0, y = 0;
-    anim.SetConstantPosition(allNodes.Get(numClients), centerX, centerY); //server = node[numClients]
-    for(uint32_t i=0; i<numClients; ++i){
-        x = centerX + 10;
-        y = centerY + 10*i;
+    uint32_t X0 = 20, Y0 = 20, x = 0, y = 0;
+    for(uint32_t i= 0; i<numClients; ++i){
+        x = X0 + (10 * (i%5));
+        y = Y0 + (10 * int(i/5));
         anim.SetConstantPosition(allNodes.Get(i), x, y);
     }
+    anim.SetConstantPosition(allNodes.Get(numClients), (X0 + 20), (X0 - 20)); //server = node[numClients]
 
     // --- EXECUCAO --- //
     NS_LOG_INFO("Run simulation.");
