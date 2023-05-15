@@ -22,6 +22,8 @@ Consideremos o cliente **n** na rede com **[numClients]** clientes.
 5. Nesse meio tempo, o cliente recebe, de 1 em 1 segundo, um pacote de ping (request) de cada um dos demais clientes, respondendo imediatamente com um pacote de ping (reply).
 6. Não são recebidos pacotes de ping (resquest) do servidor, pois a aplicação não está instalada nele.
 
+É importante notar o seguinte: os clientes começam suas aplicações com 1 segundo de diferença cada um, para que se mantenha a organização do fluxo de pacotes e do enlace. Porém, à medida que o número de clientes cresce, essa diferença passa a não ser suficiente para cumprir esse propósito, devido ao atraso de propagação associado ao enlace e ao atraso devido à toca de pacotes ARP inicial. De toda forma, para 20 clientes esse número foi suficiente. 
+
 ### Versionamento
 - **v1** -> Os clientes pingam no cliente e no servidor ao mesmo tempo, isto é, as aplicações todas iniciam simultaneamente.
 - **v2** -> Os clientes pingam primeiro no servidor, para depois pingar nos demais clientes. (A aplicação de ping no servidor começa *0.5 segundo* mais cedo).
