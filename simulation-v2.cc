@@ -24,7 +24,7 @@ NS_LOG_COMPONENT_DEFINE ("UdpClientsServerIOT-v2");
 
 int 
 main (int argc, char *argv[]){
-    uint16_t numClients = 3;
+    uint16_t numClients = 20;
 
     // --- LOGGING --- //
     LogComponentEnable ("UdpClientsServerIOT-v2", LOG_LEVEL_ALL);
